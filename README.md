@@ -231,9 +231,9 @@ Set environment variables through your platform's configuration:
 
 ## Contact & Support
 
-**Email:** [xsui46941@gmail.com](mailto:xsui46941@gmail.com)  
-**Telegram:** [@lorine93s](https://t.me/lorine93s)  
-**Twitter:** [@kakamajo_btc](https://twitter.com/kakamajo_btc)
+**Email:** [springer230@gmail.com](mailto:springers230@gmail.com)  
+**Telegram:** [@](https://t.me/blateboris)  
+**Twitter:** [@kakamajo_btc](https://x.com/goldboris-dev)
 
 ---
 
