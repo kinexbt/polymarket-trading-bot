@@ -16,3 +16,12 @@ export async function getUsdBalanceApprox(
   return parseFloat(utils.formatUnits(balance, 6));
 }
 
+export async function getPolBalance(wallet: Wallet): Promise<number> {
+  const provider = wallet.provider;
+  if (!provider) {
+    throw new Error('Wallet provider is required');
+  }
+  const balance = await provider.getBalance(wallet.address);
+  return parseFloat(utils.formatEther(balance));
+}
+

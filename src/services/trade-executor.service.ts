@@ -5,7 +5,7 @@ import type { Logger } from '../utils/logger.util';
 import type { TradeSignal } from '../domain/trade.types';
 import { computeProportionalSizing } from '../config/copy-strategy';
 import { postOrder } from '../utils/post-order.util';
-import { getUsdBalanceApprox } from '../utils/get-balance.util';
+import { getUsdBalanceApprox, getPolBalance } from '../utils/get-balance.util';
 import { httpGet } from '../utils/fetch-data.util';
 
 export type TradeExecutorDeps = {
@@ -32,7 +32,10 @@ export class TradeExecutorService {
     const { logger, env, client } = this.deps;
     try {
       const yourUsdBalance = await getUsdBalanceApprox(client.wallet, env.usdcContractAddress);
+      const polBalance = await getPolBalance(client.wallet);
       const traderBalance = await this.getTraderBalance(signal.trader);
+
+      logger.info(`Balance check - POL: ${polBalance.toFixed(4)} POL, USDC: ${yourUsdBalance.toFixed(2)} USDC`);
 
       const sizing = computeProportionalSizing({
         yourUsdBalance,
@@ -44,6 +47,26 @@ export class TradeExecutorService {
       logger.info(
         `${signal.side} ${sizing.targetUsdSize.toFixed(2)} USD`,
       );
+
+      // Balance validation before executing trade
+      const requiredUsdc = sizing.targetUsdSize;
+      const minPolForGas = 0.01; // Minimum POL needed for gas
+
+      if (signal.side === 'BUY') {
+        if (yourUsdBalance < requiredUsdc) {
+          logger.error(
+            `Insufficient USDC balance. Required: ${requiredUsdc.toFixed(2)} USDC, Available: ${yourUsdBalance.toFixed(2)} USDC`,
+          );
+          return;
+        }
+      }
+
+      if (polBalance < minPolForGas) {
+        logger.error(
+          `Insufficient POL balance for gas. Required: ${minPolForGas} POL, Available: ${polBalance.toFixed(4)} POL`,
+        );
+        return;
+      }
 
       await postOrder({
         client,
